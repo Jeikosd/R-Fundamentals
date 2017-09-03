@@ -1,0 +1,7 @@
+symbol, Meaning
++, Addition
+-, Subtraction
+*, Multiplication
+/, Division
+%%, Modulo (estimates remainder in a division)
+^, Exponential

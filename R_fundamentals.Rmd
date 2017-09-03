@@ -1,0 +1,281 @@
+---
+title: "R fundamentals"
+author: "Jeikosd"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  beamer_presentation:
+    incremental: true
+    theme: "Antibes"
+    colortheme: "dolphin"
+    fonttheme: "structurebold"
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+
+## Installing R and R-Studio
+
+ >- Base R **<https://cran.r-project.org/mirrors.html>**
+ >- RStudio **<https://www.rstudio.com/products/RStudio/>**
+
+## What is R?
+
+- it's a statistical software
+-  it's a object base
+    + Types of objects (scalar, vector, matrices, arrays and lists)
+    + Assignment of objects
+
+    
+## why use R?
+
+>- Taken from Hadley Wickham "Fundamentally learning about the world through data is really, really good"
+>- it's open source
+
+## R as calculator
+
+```{r, echo = TRUE}
+2+4
+sqrt(16)
+3*(2+4)
+```
+
+## More examples
+
+```{r, echo=FALSE, results='asis'}
+
+library(pander)
+df <- read.csv(file = 'data/calculator.csv')
+
+pandoc.table( df
+              , caption = "Operation Symbols"
+              , missing = NA
+              , emphasize.rownames = FALSE
+             )
+```
+
+>- **See <http://www.statmethods.net/management/operators.html>**
+
+# First Steps in R
+
+## Objects in R
+
+>- Objects in R obtain values by assignment.  
+>- This is achieved by the gets arrow, <-, and not the equal sign, =.  
+>- Objects can be of different kinds. 
+
+
+## Types
+ 
+>- Primitives (numeric, integer, character, logical, factor)
+>- Data Frames
+>- Lists
+>- Tables
+>- Arrays
+>- Environments
+>- Others (functions, closures, promises..)
+
+## Simple Types - Vectors 
+ 
+The basic type unit in R is a vector
+ 
+```{r, collapse=TRUE, echo = TRUE} 
+x <- c(1,2,3)
+x
+x <- 1:3
+x[1]
+x[0]
+x[-1]
+```
+
+## Generating Vectors
+ 
+R provides lots of convenience functions for data generation:
+ 
+```{r,collapse=TRUE, echo = TRUE}
+rep(0, 5)
+seq(1,10)
+seq(1,2,.1)
+seq(1,2,length.out=6)
+```
+ 
+## Indexing
+ 
+```{r, collapse=TRUE, echo = TRUE, split = TRUE}
+x <- c(1, 3, 4, 10, 15, 20, 50, 1, 6)
+x > 10
+which(x > 10)
+x[x>10]
+x[!x>10]
+x[x<=10]
+x[x>10 & x<30]
+```
+
+## Functions 
+ 
+```{r, collapse=TRUE, echo = TRUE}
+square <- function(x) x^2
+square(2)
+ 
+pow <- function(x, p=2) x^p
+pow(10)
+pow(10,3)
+pow(p=3,10)
+
+```
+
+## Data Frames
+ 
+>- Data frames are the fundamental structure used in data analysis
+>- Similar to a database table in spirit (named columns, distinct types)
+ 
+```{r, echo = TRUE}
+d <- data.frame(x=1:6, y="AUDUSD", z=c("one","two"))
+d
+```
+
+## Lists
+
+```{r, echo = TRUE}
+d <- data.frame(x=1:6, y="AUDUSD", z=c("one","two"))
+e <- data.frame(x=1:4, y="Center", z=c("one","two"))
+f <- c(1, 2, 3)
+
+g <- list(d, e,f)
+f[[3]]
+
+```
+
+## Installing Packages
+
+There are some functions to make easier the management the information into R or to make a particular statistical method
+
+```{r, eval = FALSE, echo = TRUE}
+install.packages('name')
+```
+
+
+# World of Tidyverse
+
+## Why use tidyverse package
+
+```{r echo = FALSE, out.width = "85%"}
+knitr::include_graphics("diagrams/data-science.png")
+```
+
+## Untidy Data
+
+See the paper Tidy Data by Hadley Wickham in Journal of Statistical Software (2014)
+
+- Each variable forms a column
+- Each observation forms a row
+- Each type of observational unit forms a table
+
+
+
+## Tidy Data
+
+```{r, echo=FALSE, results='asis'}
+
+library(pander)
+untidy <- read.csv(file = 'data/unntidydata.csv')
+
+pandoc.table(untidy
+              , caption = "Example of common untidy data"
+              , missing = NA
+              , emphasize.rownames = TRUE
+             )
+
+  # extract(Type, c("variable", "year"), regex = '([:alpha:]+)([0-9]+)')
+  
+```
+
+## Tidy Data
+
+```{r, echo=FALSE, results='asis'}
+library(tidyr)
+library(readr)
+
+tidy_data <- untidy %>%
+  gather("Type", "Value", -Station) %>%
+  separate(Type, into = c("variable", "year"))
+
+pandoc.table(tidy_data
+              , caption = "Resulting tidy data set"
+              , missing = NA
+              , emphasize.rownames = TRUE
+             )
+
+```
+
+## Installing Tidyverse
+
+```{r, eval = FALSE, echo = TRUE}
+install.packages('tidyverse')
+```
+
+## Loading Packages
+```{r, eval = FALSE, echo = TRUE}
+library('tidyverse')
+```
+
+## Working with Tidyverse
+
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+library('tidyverse')
+
+x <- read_csv(file = 'data/weather.csv')
+select(x, origin, temp)
+select(x, origin, humid)
+select(x, year, month, day, temp)
+
+```
+ 
+## Working with Tidyverse
+
+```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library('tidyverse')
+
+x <- read_csv(file = 'data/weather.csv')
+
+```
+ 
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+filter(x, year == 2013)
+filter(x, origin == 'EWR')
+filter(x, origin == 'JFK')
+filter(x, origin == 'JFK', temp >= 38, humid < 55)
+
+```
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+## Slide with R Output
+         
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
