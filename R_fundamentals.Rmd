@@ -8,6 +8,8 @@ output:
     theme: "Antibes"
     colortheme: "dolphin"
     fonttheme: "structurebold"
+    includes:
+      in_header: latex-topmatter.tex
 
 ---
 
@@ -30,7 +32,7 @@ knitr::opts_chunk$set(echo = FALSE)
     + Assignment of objects
 
     
-## why use R?
+## Why use R?
 
 >- Taken from Hadley Wickham "Fundamentally learning about the world through data is really, really good"
 >- it's open source
@@ -45,7 +47,7 @@ sqrt(16)
 
 ## More examples
 
-```{r, echo=FALSE, results='asis'}
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 
 library(pander)
 df <- read.csv(file = 'data/calculator.csv')
@@ -114,6 +116,22 @@ x[x<=10]
 x[x>10 & x<30]
 ```
 
+## Logical Operators
+
+```{r, echo=FALSE, message=FALSE, results='asis'}
+
+library(pander)
+df <- read.csv(file = 'data/logical_operators.csv')
+
+pandoc.table( df
+              , caption = "Logical Operators"
+              , missing = NA
+              , emphasize.rownames = FALSE
+             )
+```
+
+
+
 ## Functions 
  
 ```{r, collapse=TRUE, echo = TRUE}
@@ -153,6 +171,7 @@ f[[3]]
 
 There are some functions to make easier the management the information into R or to make a particular statistical method
 
+
 ```{r, eval = FALSE, echo = TRUE}
 install.packages('name')
 ```
@@ -166,7 +185,14 @@ install.packages('name')
 knitr::include_graphics("diagrams/data-science.png")
 ```
 
-## Untidy Data
+## Why use tidyverse package
+
+>- Great for data exploration and transformation
+>- Intuitive to write and easy to read, especially when using the "chaining" syntax (covered below)
+Fast on data frames
+
+
+## Tidy Data
 
 See the paper Tidy Data by Hadley Wickham in Journal of Statistical Software (2014)
 
@@ -176,7 +202,7 @@ See the paper Tidy Data by Hadley Wickham in Journal of Statistical Software (20
 
 
 
-## Tidy Data
+## Untidy Data
 
 ```{r, echo=FALSE, results='asis'}
 
@@ -222,7 +248,9 @@ install.packages('tidyverse')
 library('tidyverse')
 ```
 
-## Working with Tidyverse
+# Working with Tidyverse
+
+## Selecting
 
 ```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
 library('tidyverse')
@@ -234,7 +262,7 @@ select(x, year, month, day, temp)
 
 ```
  
-## Working with Tidyverse
+## Filtering
 
 ```{r, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 library('tidyverse')
@@ -251,31 +279,223 @@ filter(x, origin == 'JFK', temp >= 38, humid < 55)
 
 ```
  
+## Arranging 
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+arrange(x, temp)
+arrange(x, desc(temp))
+
+``` 
+## Mutate: Add new variables 
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+mutate(x, temp = (temp - 32) * 5 /9)
+mutate(x, dewp = (dewp - 32) * 5 /9)
+mutate(x, y = temp / dewp)
+```  
+
+## "Chaining" or "Pipelining"
+
+>- Usual way to perform multiple operations in one line is by nesting.
+>- Can write commands in a natural order by using the %>% infix operator (which can be pronounced as "then").
+>- Chaining increases readability significantly when there are many commands
  
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+
+x %>%
+  select(origin, temp) %>%
+  filter(origin == "EWR") %>%
+  mutate(temp = (temp - 32) * 5 /9)
+
+```   
  
+## Summarise: Reduce variables to values 
+
+>- Primarily useful with data that has been grouped by one or more variables
+>- group_by creates the groups that will be operated on
+>- summarise uses the provided aggregation function to summarise each group 
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-## Slide with R Output
-         
-```{r cars, echo = TRUE}
-summary(cars)
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+
+x %>%
+  group_by(origin) %>%
+  summarise(avg_temp = mean(temp, na.rm = TRUE))
+
+
+x %>%
+  group_by(origin) %>%
+  summarise(avg_temp = mean(temp, na.rm = TRUE), 
+            avg_dewp = mean(dewp, na.rm = TRUE))
+
+```   
+## Summarise: Reduce variables to values 
+
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE}
+
+x %>%
+  group_by(origin, month) %>%
+  summarise(avg_temp = mean(temp, na.rm = TRUE))
+
+
+x %>%
+  group_by(month, hour) %>%
+  summarise(avg_temp = mean(temp, na.rm = TRUE), 
+            avg_dewp = mean(dewp, na.rm = TRUE))
+
+```  
+
+# Looping
+
+## Bonus (How to load this information?)
+
+```{r echo = FALSE, out.width = "45%"}
+knitr::include_graphics("diagrams/Weather_Stations.png")
 ```
 
-## Slide with Plot
+## A bad idea
 
-```{r pressure}
-plot(pressure)
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning=FALSE, tidy = TRUE}
+library(tidyverse)
+weather_station_1 <-  
+  read_csv(file ='data/climate/Weather_station_1.csv')
+weather_station_2 <- 
+  read_csv(file = 'data/climate/Weather_station_2.csv')
+weather_station_3 <- 
+  read_csv(file = 'data/climate/Weather_station_3.csv')
+weather_station_4 <- 
+  read_csv(file = 'data/climate/Weather_station_4.csv')
+weather_station_5 <- 
+  read_csv(file = 'data/climate/Weather_station_5.csv')
+weather_station_6 <- 
+  read_csv(file = 'data/climate/Weather_station_6.csv')
+```   
+
+## Loops?
+
+
+```{r, eval=FALSE, echo=TRUE, message=FALSE, warning = FALSE}
+
+climate <- list()
+for(i in 1:6){
+  
+climate[[i]] <- 
+  read_csv(file = paste('data/climate/Weather_station_' , i, '.csv', sep = ''))
+  
+}
+
+
+climate <- list.files('data/climate/', full.names = T)
+
+climate <- lapply(climate, read_csv)
+
+climate <- list.files('data/climate/', full.names = T) %>%
+  lapply(read_csv)
+
+```   
+
+# Spatial data into R
+
+## Libraries needed for the handling of spatial data
+
+>- raster
+>- rgdal
+>- sf
+>- sp
+
+## Loading a Raster file
+
+```{r, eval=TRUE, echo=TRUE, message=FALSE, warning = FALSE}
+
+library(raster)
+prec <- raster('data/raster/prec/prec1_23.tif')
+plot(prec)
+
+```  
+
+## Croping and Masking
+
+```{r, eval = TRUE, echo = TRUE, message = FALSE, warning = FALSE}
+
+library(raster)
+prec <- raster('data/raster/prec/prec1_23.tif')
+mask <- shapefile('data/shapefile/municipios_wgs84.shp')
+mask_transf <- spTransform(mask, crs(prec))
+
+crop(prec, mask_transf)
+mask(prec, mask_transf)
+
+```  
+
+## Loading multiple raster files
+
+Let's GO!
+
+## Loading multiple raster files
+
+```{r, eval = TRUE, echo = TRUE, message = FALSE, warning = FALSE, fig.height = 3, fig.width = 3, fig.align = "center"}
+
+library(raster)
+library(tidyverse)
+prec <- list.files('data/raster/prec/', full.names = T) %>%
+  lapply(raster)
+
+prec_stack <- stack(prec)
+
+avg_prec <- mean(prec_stack)
+min_prec <- min(prec_stack)
+max_prec <- max(prec_stack)
+
+plot(avg_prec)
+```  
+## Loading multiple raster files
+
+```{r, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE, fig.align = "center"}
+
+library(raster)
+library(tidyverse)
+
+prec <- list.files('data/raster/prec/', full.names = T) %>%
+  stack()
+
+tmax <- list.files('data/raster/tmax/', full.names = T) %>%
+  stack()
+
+tmin <- list.files('data/raster/tmin/', full.names = T) %>%
+  stack()
+
+```  
+## Simple Features
+Package sf
+
+>- it is in the world of tidyverse
+>- :)
+
+## Working with sf
+
+```{r, eval = FALSE, echo = TRUE, message = FALSE, warning = FALSE}
+
+
+library(tidyverse)
+library(sf)
+library(ggplot2)
+library(viridis)
+prd <- st_read(dsn = 'data/shapefile/Produccion_ton.shp')
+
+plot(st_geometry(prd))
+plot(prd["AREA_OF"])
+
+filter(prd, NOM_DEP == 'META')
+filter(prd, NOM_DEP == 'META', AREA_OF >= 6000)
+
+avg <- group_by(prd, NOM_DEP) %>%
+  summarise(avg_area= mean(AREA_OF, na.rm = TRUE))
+
+# devtools::install_github("tidyverse/ggplot2")
+
+ggplot() +
+  geom_sf(data = avg, aes(fill = avg_area)) +
+  scale_fill_viridis("Area") +
+  ggtitle("") +
+  theme_bw()
+
+
 ```
 
