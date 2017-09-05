@@ -1,0 +1,37 @@
+---
+title: "Kriging and Spline Method"
+author: "Jeikosd"
+date: "September 4, 2017"
+output: beamer_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+# Introduction to Kriging
+
+## Basic
+
+- Kriging is an approximation method that can give predictions of unknow values of a random functions, or random process.
+- It is a linear regression model with weights into the covariance matrix.
+- Kriging assumes that the closer the input data, the more positively correlated the predicton errors.
+- Mathematically, this assumption is modelled through a second-order stationary covariance process:
+    - The expectation of the observations are constant and do not depend on the location (the input values).
+    - The covariances of the observations depend only on the "distances" between the corresponding inputs.
+    - These covariances decrease with the distances between the observations.
+    
+## Variogram
+
+- In Kriging, a crucial role y played by the variogram. That is a diagram of the variance of the difference bwtween the measurements at two input locations. 
+
+- The assumption of a second-order satiationary covariance process implies that the variogram is a function of the distance h between two locations.
+
+## Types
+
+- There are many several types of krigin
+    - Universal
+    - **Ordinary**
+    - Simple
+
